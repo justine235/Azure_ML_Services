@@ -1,0 +1,7 @@
+
+
+TUTO2: Train a model
+	1. Executer le script training dans le terminal
+	2. Executer le script control pour lancer l'entrainement
+	3. Verifier le bon fonctionnement depuis les logs d'experimentation
+	Metrics tab where you can now see live updates on the model training loss! I
