@@ -32,7 +32,6 @@ y = df.filter(['EmployeeTargeted']).values
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
 
 # Train a logistic regression model
-reg = 0.1
 model = RandomForestClassifier(class_weight="balanced", criterion = args.criterion, random_state=0).fit(X_train, y_train)
 
 # predicting over training & testing datasets
