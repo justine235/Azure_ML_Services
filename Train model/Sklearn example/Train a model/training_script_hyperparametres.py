@@ -13,6 +13,7 @@ run = Run.get_context()
 
 # Set parameters
 parser = argparse.ArgumentParser()
+parser.add_argument('--n_estimators', type=int, default=100)
 parser.add_argument('--criterion', type=str, default="gini")
 args = parser.parse_args()
 
