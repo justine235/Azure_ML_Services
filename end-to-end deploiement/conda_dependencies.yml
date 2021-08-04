@@ -1,0 +1,12 @@
+
+dependencies:
+- python=3.6.2
+- pip:
+  - azureml-defaults
+  - keras
+  - sklearn
+  - tensorflow<=2.4.*
+  - numpy
+  - scikit-learn
+  - pandas
+  - matplotlib
