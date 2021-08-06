@@ -9,9 +9,9 @@ run = Run.get_context()
 # Get arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--raw-ds', type=str, dest='raw_dataset_id')
-parser.add_argument('--output-dir', type=str, dest='output_dir')
+parser.add_argument('--out_folder', type=str, dest='folder')
 args = parser.parse_args()
-output_folder = args.output_dir
+output_folder = args.folder
 
 # Get input dataset as dataframe
 raw_df = run.input_datasets['raw_data'].to_pandas_dataframe()
