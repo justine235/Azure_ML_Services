@@ -3,17 +3,19 @@ from azureml.core import Run
 import argparse
 import os
 
+#import pandas as pd 
 # Get the experiment run context
 run = Run.get_context()
 
 # Get arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--raw-ds', type=str, dest='raw_dataset_id')
+parser.add_argument('--raw-ds', type=str, dest='raw_data')
 parser.add_argument('--output-dir', type=str, dest='output_dir')
 args = parser.parse_args()
 output_folder = args.output_dir
 
 # Get input dataset as dataframe
+print(run.input_datasets['raw_data'])
 raw_df = run.input_datasets['raw_data'].to_pandas_dataframe()
 
 

@@ -4,11 +4,9 @@ dependencies:
 - pip:
   - azureml-defaults
   - keras
-  - tensorflow<=2.4.*
   - numpy
   - scikit-learn
   - pandas
+  - tensorflow<=2.4
   - matplotlib
   - raiwidgets
-  - fairlearn==0.4.6
-  - azureml-contrib-fairness
