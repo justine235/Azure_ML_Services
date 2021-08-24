@@ -8,4 +8,7 @@ dependencies:
   - numpy
   - scikit-learn
   - pandas
-  - matplotlib
+  - matplotlib
+  - azureml-contrib-fairness
+  - fairlearn==0.4.6
+  - raiwidgets
