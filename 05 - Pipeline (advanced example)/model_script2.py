@@ -21,7 +21,7 @@ parser.add_argument('--input-dir', dest='input_dir', required=True)
 parser.add_argument('--n_estimators', type=int)
 parser.add_argument('--criterion', type=str, default="gini")
 parser.add_argument('--max_depth', type=int)
-parser.add_argument('--output-dir', dest='output_dir')
+parser.add_argument('--output-dir',, dest='output_dir')
 args = parser.parse_args()
 
 

@@ -1,0 +1,9 @@
+
+channels:
+- conda-forge
+dependencies:
+- python=3.6.2
+- pip:
+  - azureml-defaults
+  - tensorflow-gpu==2.2.0
+  - pandas

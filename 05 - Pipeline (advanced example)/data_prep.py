@@ -19,7 +19,9 @@ parser.add_argument('--output-dir', type=str, dest='output_dir')
 args = parser.parse_args()
 
 # Get input dataset as dataframe
-raw_df = run.input_datasets['raw_data'].to_pandas_dataframe()
+#raw_df = run.input_datasets['raw_data'].to_pandas_dataframe()
+raw_df = pd.read_csv('./train_dataset.csv')
+ 
 
 # data cleaning function
 def preprocessing(file_name):

@@ -1,3 +1,4 @@
+import pandas as pd
 
 # Read dataset
 df = pd.read_csv('data/train_dataset.csv')

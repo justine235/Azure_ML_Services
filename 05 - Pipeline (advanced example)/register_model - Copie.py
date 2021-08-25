@@ -17,13 +17,9 @@ args = parser.parse_args()
 run = Run.get_context()
 ws = Run.get_context().experiment.workspace
 
-model_output_dir = "./bestmodel/" + args.model_file
+model_output_dir = "./model/" + args.model_file
 os.makedirs(model_output_dir, exist_ok=True)
 run.upload_file(model_output_dir, args.saved_model)
-
-
-
-
 
 #model = Model.register(workspace=ws, model_name='rf', model_path=args.saved_model)
 
