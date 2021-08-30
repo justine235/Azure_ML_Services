@@ -42,6 +42,14 @@ def preprocessing(file_name):
     data[data['Social_Media'] > 2]['Social_Media'] <- 3
     data[data['behaviorPattern2'] > 2]['behaviorPattern2'] <- 3
 
+
+    # Email grouping & one hot encoding
+    dic_email = {"ehow.com": "others", "google.co.uk":"others","nsw.gov.au":"others"}
+    data['Email_Domain'].replace(dic_email)
+    encoded_columns = pd.get_dummies(data['Email_Domain'])
+    data = data.join(encoded_columns)
+    del data['Email_Domain']
+    
     return data
 
 prepped_df = preprocessing(raw_df)
@@ -52,3 +60,4 @@ output_folder = args.output_dir
 os.makedirs(output_folder, exist_ok=True)
 output_path = os.path.join(output_folder, 'data_prep_output.csv')
 prepped_df.to_csv(output_path)
+print(f"data location here :  {args.output_dir}/prepped_data.csv")

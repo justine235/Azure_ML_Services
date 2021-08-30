@@ -1,4 +1,4 @@
-from azureml.core import Run
+from azureml.core import Run,Model
 import argparse
 import os
 import pandas as pd
@@ -11,9 +11,8 @@ from sklearn import metrics
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.model_selection import cross_val_score
-from raiwidgets import FairnessDashboard
 import joblib
-from fairlearn.widget import FairlearnDashboard
+
 
 
 parser = argparse.ArgumentParser()
@@ -21,22 +20,22 @@ parser.add_argument('--input-dir', dest='input_dir', required=True)
 parser.add_argument('--n_estimators', type=int)
 parser.add_argument('--criterion', type=str, default="gini")
 parser.add_argument('--max_depth', type=int)
-parser.add_argument('--output-dir', dest='output_dir')
+#parser.add_argument('--output-dir', dest='output_dir')
 args = parser.parse_args()
+
 
 
 # Get input dataset as dataframe
 run = Run.get_context()
 run.log('Split criterion', np.str(args.criterion))
-
+print(np.str(args.criterion))
 #without hyperdrive
 #df = run.input_datasets['prepared_ds'].to_pandas_dataframe()
 #with hyperdrive
 
-
 df = pd.read_csv(os.path.join(args.input_dir,"data_prep_output.csv"))
 run.log('print arg',df.head(1))
-
+print(df.head(1))
 
 X = df.drop(columns=['EmployeeTargeted'])
 y = df.filter(['EmployeeTargeted'])
@@ -77,12 +76,19 @@ run.log('Test F1 Score', np.float(metrics.f1_score(y_test, y_test_pred)))
 print("Confusion Matrix: ")
 print(metrics.confusion_matrix(y_test, y_test_pred))
 
+os.makedirs('./outputs/model', exist_ok=True)
+# files saved in the "./outputs" folder are automatically uploaded into run history
+joblib.dump(rf,'./outputs/model/saved_model.pkl') 
+print('model registered')
 
-# Model saving
-model_folder = args.output_dir
-os.makedirs(model_folder, exist_ok=True)
-output_path = os.path.join(model_folder)
-joblib.dump(rf, filename=os.path.join(output_path + 'model.pkl'))
 
+sf = { 'gender': sensitive_features_test.Gender}
+from fairlearn.metrics._group_metric_set import _create_group_metric_set
+from azureml.contrib.fairness import upload_dashboard_dictionary, download_dashboard_by_upload_id
+
+dash_dict_all = _create_group_metric_set(y_true=y_test,
+                                         predictions=dominant_all_ids,
+                                         sensitive_features=sf,
+                                         prediction_type='binary_classification')
 
 run.complete()
