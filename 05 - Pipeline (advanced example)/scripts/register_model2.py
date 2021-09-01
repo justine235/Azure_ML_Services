@@ -7,15 +7,9 @@ from azureml.core import Run, run
 from shutil import copy2
 from azureml.core.model import Model
 from azureml.pipeline.steps import HyperDriveStepRun
-
+import pandas as pd
 summaryid = [0]
 summarymetric = [0]
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--model", type=str, help="model")
-parser.add_argument('--input-dir', dest='input_dir', required=True)
-args = parser.parse_args()
 
 
 run = Run.get_context()
