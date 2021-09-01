@@ -15,7 +15,9 @@ run = Run.get_context()
 # Get arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--raw-ds', type=str, dest='raw_data')
-parser.add_argument('--output-dir', type=str, dest='output_dir')
+#parser.add_argument('--output-dir', type=str, dest='output_dir')
+parser.add_argument('--dataset', dest='dataset', required=True)
+parser.add_argument('--datadir', dest='datadir', required=True)
 args = parser.parse_args()
 
 # Get input dataset as dataframe
@@ -55,9 +57,7 @@ def preprocessing(file_name):
 prepped_df = preprocessing(raw_df)
 
 
-# Save prepped data to the PipelineData location
-output_folder = args.output_dir
-os.makedirs(output_folder, exist_ok=True)
-output_path = os.path.join(output_folder, 'data_prep_output.csv')
-prepped_df.to_csv(output_path)
-print(f"data location here :  {args.output_dir}/prepped_data.csv")
+# save it to transfer the data to the second pipeline
+p = args.datadir
+os.makedirs(p, exist_ok=True)
+prepped_df.to_csv(os.path.join(p,args.dataset), index=False)
