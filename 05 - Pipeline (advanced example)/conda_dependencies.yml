@@ -1,8 +1,1 @@
-
-dependencies:
- - pip=21.0.1
- - pip:
-    - azureml-defaults
-    - azureml-core > 1.0.72
-    - azureml-dataprep[pandas] > 1.1.34
-    - scikit-learn==0.24.1    - fairlearn
+dependencies:- python=3.7.11- pip:  - numpy==1.21.0  - pandas==1.2.2  - matplotlib==3.2.1  - scikit-learn==0.24.1  - azureml-defaults==1.32.0  - azureml-train==1.32.0  - azureml-contrib-fairness==1.32.0  - interpret-community==0.18.1  - interpret-core==0.2.4  - azureml-interpret==1.32.0  - azureml-datadrift==1.32.0  - fairlearn==0.7.0  - raiwidgets==0.9.4  - facets-overview==1.0.0

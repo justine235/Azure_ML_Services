@@ -12,6 +12,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.model_selection import cross_val_score
 import joblib
+from joblib import dump
 #from fairlearn.metrics._group_metric_set import _create_group_metric_set
 #from azureml.contrib.fairness import upload_dashboard_dictionary, download_dashboard_by_upload_id
 
@@ -20,10 +21,11 @@ import joblib
 parser = argparse.ArgumentParser()
 parser.add_argument('--input-dir', dest='input_dir', required=True)
 parser.add_argument('--dataset', dest='dataset', required=True)
-parser.add_argument('--datadir', dest='datadir', required=True)
 parser.add_argument('--n_estimators', type=int)
 parser.add_argument('--criterion', type=str, default="gini")
 parser.add_argument('--max_depth', type=int)
+parser.add_argument('--model-path', dest='model_path', required=True)
+parser.add_argument('--metrics-path', dest='metrics_path', required=True)
 args = parser.parse_args()
 
 
@@ -49,26 +51,23 @@ X = df.drop(columns=['EmployeeTargeted'])
 y = df.filter(['EmployeeTargeted'])
 
 
-#sensitive feature
-print(X["Gender"].value_counts().to_dict())
-sensitive_features = X[["Gender"]]
 
+X_train, X_test, y_train, y_test  = train_test_split(X, y,test_size = 0.2, random_state=0, stratify=y)
 
-X_train, X_test, y_train, y_test, sensitive_features_train, sensitive_features_test = train_test_split(X, y, 
-    sensitive_features,test_size = 0.2, random_state=0, stratify=y)
+print('shape train', X_train.shape)
+print('shape test', X_test.shape)
+print('columns train',X_train.columns)
+print('columns test',X_test.columns)
+print('head train', X_train.head(3))
+print('head test', X_test.head(3))
 
+# save test data dataset
+output_dir = args.input_dir
+os.makedirs(os.path.join(output_dir), exist_ok=True)
+print('location second', os.path.join(output_dir))
+pd.concat([X_test,y_test], axis=1).to_csv(os.path.join(output_dir,'data_eval_output.csv'))
+pd.concat([X_train,y_train], axis=1).to_csv(os.path.join(output_dir,'data_train_output.csv'))
 
-# save test part for later
-test_data = args.input_dir
-os.makedirs(os.path.join(test_data,'file'), exist_ok=True)
-print('location second', os.path.join(test_data,'file'))
-X_test.to_csv(os.path.join(test_data,'file/data_eval_output.csv'))
-
-
-X_train = X_train.reset_index(drop=True)
-sensitive_features_train = sensitive_features_train.reset_index(drop=True)
-X_test = X_test.reset_index(drop=True)
-sensitive_features_test = sensitive_features_test.reset_index(drop=True)
 
 # Model 
 rf = RandomForestClassifier(class_weight="balanced", 
@@ -85,37 +84,48 @@ run.log('Test Accuracy2', np.float(metrics.accuracy_score(y_test, y_test_pred)))
 print("Train Recall: {:.2f}".format(metrics.recall_score(y_test, y_test_pred)))
 print("Train Precison: {:.2f}".format(metrics.precision_score(y_test, y_test_pred)))
 print("Train F1 Score: {:.2f}".format(metrics.f1_score(y_test, y_test_pred)))
+
 run.log('Test Accuracy', np.float(metrics.accuracy_score(y_test, y_test_pred)))
 run.log('Test Recall', np.float(metrics.recall_score(y_test, y_test_pred)))
 run.log('Test Precison', np.float(metrics.precision_score(y_test, y_test_pred)))
 run.log('Test F1 Score', np.float(metrics.f1_score(y_test, y_test_pred)))
+
 print("Confusion Matrix: ")
 print(metrics.confusion_matrix(y_test, y_test_pred))
+cm_plot_train = metrics.plot_confusion_matrix(rf, X_train, y_train)
+cm_plot_val = metrics.plot_confusion_matrix(rf, X_test, y_test)
+cm_plot_train.figure_.savefig("confusion_matrix_train.png")
+cm_plot_val.figure_.savefig("confusion_matrix_val.png")
 
 
-# store in the blob
-os.makedirs(os.path.join(test_data,'model'), exist_ok=True)
-print('location second', os.path.join(test_data,'model'))
-joblib.dump(rf,os.path.join(test_data,'model/saved_model.pkl'))
+# get run id 
+run = Run.get_context()
+RUNID = run.get_details()['runId']
+MODEL_NAME = RUNID + 'model.joblib'
+print(MODEL_NAME)
+
+# store in the blob / datastore
+model_dir = args.model_path
+os.makedirs(os.path.join(model_dir), exist_ok=True)
+joblib.dump(rf,os.path.join(model_dir,MODEL_NAME))
 
 # store in the local execution (run history)
 os.makedirs('./outputs/model', exist_ok=True)
 joblib.dump(rf,'./outputs/model/saved_model.pkl') 
 print('model registered')
+run.log_image(name='Confusion Matrix Train Dataset', path="confusion_matrix_train.png")
+run.log_image(name='Confusion Matrix Val Dataset', path="confusion_matrix_val.png")
 
 
-# get metrics & store the metrics in the blob
+# get metrics & store the metrics in the datastore
+metrics_dir = args.metrics_path
 metrics = run.get_metrics()
 df = pd.DataFrame(list(metrics.items()),columns = ['metrics','value']) 
-os.makedirs(os.path.join(test_data,'metrics'), exist_ok=True)
-df.to_csv(os.path.join(test_data,'metrics/metricsoutput.csv'))
+os.makedirs(os.path.join(metrics_dir,RUNID), exist_ok=True)
+df.to_csv(os.path.join(metrics_dir,RUNID,'metricsoutput.csv'))
+cm_plot_val.figure_.savefig(os.path.join(metrics_dir,RUNID,'confusion_matrix_val.png'))
 
 
 
-#sf = { 'gender': sensitive_features_test.Gender}
-#dash_dict_all = _create_group_metric_set(y_true=y_test,
-#                                         predictions=y_test_pred,
-#                                         sensitive_features=sf,
-#                                         prediction_type='binary_classification')
 
 run.complete()

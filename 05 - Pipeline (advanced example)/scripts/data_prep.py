@@ -15,7 +15,6 @@ run = Run.get_context()
 # Get arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--raw-ds', type=str, dest='raw_data')
-#parser.add_argument('--output-dir', type=str, dest='output_dir')
 parser.add_argument('--dataset', dest='dataset', required=True)
 parser.add_argument('--datadir', dest='datadir', required=True)
 args = parser.parse_args()
